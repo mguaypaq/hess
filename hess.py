@@ -583,7 +583,15 @@ def rp(bfact, spec):
                 result.append((blist[jj], i))
     return result
 
+_flowup_cache = {}
 def flowup(bfact, path):
+    try:
+        return _flowup_cache[bfact, path]
+    except KeyError:
+        result = _flowup_compute(bfact, path)
+        _flowup_cache[bfact, path] = result
+        return result
+def _flowup_compute(bfact, path):
     """
     Return a fragment of a flowup basis vector.
     """
@@ -601,7 +609,15 @@ def flowup(bfact, path):
 
 # ---------------------------------------------------------
 
+_indices_above_cache = {}
 def indices_above(bfact):
+    try:
+        return _indices_above_cache[bfact]
+    except KeyError:
+        result = _indices_above_compute(bfact)
+        _indices_above_cache[bfact] = result
+        return result
+def _indices_above_compute(bfact):
     result = {}
     assert is_bfact(bfact)
     n = len(bfact)
@@ -612,7 +628,15 @@ def indices_above(bfact):
             result[offset] = olist
     return result
 
+_indices_below_cache = {}
 def indices_below(bfact):
+    try:
+        return _indices_below_cache[bfact]
+    except KeyError:
+        result = _indices_below_compute(bfact)
+        _indices_below_cache[bfact] = result
+        return result
+def _indices_below_compute(bfact):
     result = {}
     assert is_bfact(bfact)
     n = len(bfact)
@@ -667,6 +691,8 @@ def translators(n):
     """
     result = {}
     for cc in compositions(n):
+        if cc != tuple(sorted(cc, reverse=True)):
+            continue
         cycle_type = tuple(sorted(cc, reverse=True))
         bfact = []
         for part in cc:
@@ -939,6 +965,10 @@ def output_all(sizes):
 
 # ---------------------------------------------------------
 
+def short_computation():
+    with open('output-12345.py', 'w') as f:
+        f.write(output_all([1, 2, 3, 4, 5]))
+
 def long_computation():
     with open('output-123456.py', 'w') as f:
         f.write(output_all([1, 2, 3, 4, 5, 6]))
@@ -959,5 +989,6 @@ doctest.testmod()
 # ---------------------------------------------------------
 
 if __name__ == '__main__':
+#    short_computation()
     long_computation()
 
