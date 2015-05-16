@@ -16,7 +16,7 @@ from collections import defaultdict, Counter, namedtuple
 # ---------------------------------------------------------
 
 def is_blist(bl):
-    """
+    r"""
     Check whether `bl` is a valid bijection, in the index list format.
 
     In the index list format, `bl[i] == j` if ``L_i \mapsto R_j``.
@@ -32,13 +32,13 @@ def is_blist(bl):
             sorted(bl) == range(len(bl)))
 
 def iter_blist(n):
-    """
+    r"""
     Return an iterator over all valid blists of length `n`.
     """
     return it.permutations(range(n))
 
 def is_bfact(bf):
-    """
+    r"""
     Check whether `bf` is a valid bijection, in the factorial base format.
 
     In the factorial base format, `bf[i]` is the number of variables
@@ -56,13 +56,13 @@ def is_bfact(bf):
                 for i in range(len(bf))))
 
 def iter_bfact(n):
-    """
+    r"""
     Return an iterator over all valid bfacts of length `n`.
     """
     return it.product(*[range(i+1) for i in range(n)])
 
 def bfact_from_blist(bl):
-    """
+    r"""
     Convert a blist into a bfact.
 
     >>> bfact_from_blist((0, 1, 2, 3, 4))
@@ -79,7 +79,7 @@ def bfact_from_blist(bl):
     return tuple(result)
 
 def blist_from_bfact(bf):
-    """
+    r"""
     Convert a bfact into a blist.
 
     >>> blist_from_bfact((0, 0, 0 ,0, 0))
@@ -95,7 +95,7 @@ def blist_from_bfact(bf):
     return tuple(result)
 
 def test_is_blist(below=7):
-    """
+    r"""
     Test that `is_blist` corresponds to `iter_blist`.
 
     >>> test_is_blist()
@@ -106,7 +106,7 @@ def test_is_blist(below=7):
         assert expected == actual
 
 def test_is_bfact(below=7):
-    """
+    r"""
     Test that `is_bfact` corresponds to `iter_bfact`.
 
     >>> test_is_bfact()
@@ -117,7 +117,7 @@ def test_is_bfact(below=7):
         assert expected == actual
 
 def test_convert(below=7):
-    """
+    r"""
     Test that converting blist -> bfact -> blist is the
     identity function on valid blists, and similarly for
     bfact -> blist -> bfact on valid bfacts.
@@ -131,7 +131,7 @@ def test_convert(below=7):
             assert bf == bfact_from_blist(blist_from_bfact(bf))
 
 def test_truncate(below=7):
-    """
+    r"""
     Test that truncating a bfact corresponds to removing
     the largest elements in the equivalent blist.
 
@@ -149,7 +149,7 @@ def test_truncate(below=7):
 # ---------------------------------------------------------
 
 def normalize_root_product(roots):
-    """
+    r"""
     Return a `sign, roots` pair where `sign` is ``\pm 1`` or 0
     and `roots` is a sorted tuple of roots `(i, j)` with `i < j`.
 
@@ -180,7 +180,7 @@ def normalize_root_product(roots):
     return sign, tuple(result)
 
 def project_root_product(roots, fro, to):
-    """
+    r"""
     Return a `sign, roots` pair `sign` is ``\pm 1`` or 0
     and `roots` is obtained by replacing every instance
     of `fro` by `to` in the given roots (and normalizing).
@@ -204,7 +204,7 @@ def project_root_product(roots, fro, to):
 # ---------------------------------------------------------
 
 def is_path(p):
-    """
+    r"""
     Check whether `p` is a valid Dyck path.
 
     The entries of `p` give the number of boxes above the path in each row.
@@ -228,7 +228,7 @@ def is_path(p):
                 for i in range(len(p))))
 
 def iter_path(n):
-    """
+    r"""
     Return an iterator over all valid Dyck paths of length `n`.
     """
     if n == 0:
@@ -243,7 +243,7 @@ def iter_path(n):
                 yield head + (tail,)
 
 def test_is_path(below=7):
-    """
+    r"""
     Test that `is_path` corresponds to `iter_path`.
 
     >>> test_is_path()
@@ -254,7 +254,7 @@ def test_is_path(below=7):
         assert expected == actual
 
 def boxes_under_path(p):
-    """
+    r"""
     Return the set of boxes `(i, j)` below the path `p`.
 
     >>> sorted(boxes_under_path((0, 0, 0)))
@@ -273,7 +273,7 @@ def boxes_under_path(p):
 # ---------------------------------------------------------
 
 def is_fragment(frag, path):
-    """
+    r"""
     Check whether `frag` is a valid vector fragment.
 
     A vector fragment is given as a dict of (blist->root_product).
@@ -300,7 +300,7 @@ def is_fragment(frag, path):
     return True
 
 def prod_lperm(lp1, lp2):
-    """
+    r"""
     Return the composition of the permutations of L variables `lp1` and `lp2`.
 
     >>> lp1 = (1, 0, 2, 3, 4)
@@ -317,7 +317,7 @@ def prod_lperm(lp1, lp2):
     return tuple(lp2[lp1[i]] for i in range(n))
 
 def translated_fragment(lperm, frag):
-    """
+    r"""
     Return the result of acting by the permutation of L variables `lperm`
     on the vector fragment `frag`.
 
@@ -354,7 +354,7 @@ def translated_fragment(lperm, frag):
     return result
 
 def lvaluated_fragment(frag):
-    """
+    r"""
     Return the result of evaluating all coordinates of `frag` at ``L_i = i``.
 
     >>> frag = {
@@ -385,7 +385,7 @@ def lvaluated_fragment(frag):
     return result
 
 def rvaluated_fragment(frag):
-    """
+    r"""
     Return the result of evaluating all coordinates of `frag` at ``R_i = i``.
 
     >>> frag = {
@@ -418,7 +418,7 @@ def rvaluated_fragment(frag):
 # ---------------------------------------------------------
 
 def test_is_fragment():
-    """
+    r"""
     Test the function `is_fragment` on various cases.
 
     >>> test_is_fragment()
@@ -505,7 +505,7 @@ def test_is_fragment():
         ])
 
 def test_associativity():
-    """
+    r"""
     Test that `prod_lperm` and `translated_fragment` are associative
     (as a group and a group action).
 
@@ -541,7 +541,7 @@ def test_associativity():
 # ---------------------------------------------------------
 
 def rpspec(bfact, path):
-    """
+    r"""
     Do some voodoo on a bijection and a path to get a root product spec.
     """
     mobile, fixed = [], []
@@ -565,7 +565,7 @@ def rpspec(bfact, path):
     return mobile, fixed
 
 def rp(bfact, spec):
-    """
+    r"""
     Do some more voodoo to transform a spec into an actual root product.
     """
     mobile, fixed = spec
@@ -592,7 +592,7 @@ def flowup(bfact, path):
         _flowup_cache[bfact, path] = result
         return result
 def _flowup_compute(bfact, path):
-    """
+    r"""
     Return a fragment of a flowup basis vector.
     """
     spec = rpspec(bfact, path)
@@ -662,7 +662,7 @@ def frag_at(n, frag, indices):
 # ---------------------------------------------------------
 
 def compositions(n):
-    """
+    r"""
     Iterator for the compositions of the integer `n`.
 
     >>> sorted(list(compositions(3)))
@@ -678,7 +678,7 @@ def compositions(n):
             yield (head,) + tail
 
 def translators(n):
-    """
+    r"""
     Return the lperms for which we can compute character values.
 
     >>> translators(3) == {
@@ -791,7 +791,7 @@ def doright(path):
     return csf
 
 def check_rreg(path):
-    """
+    r"""
     >>> all(check_rreg(path) == 24 for path in iter_path(4))
     True
     """
@@ -807,7 +807,7 @@ def check_rreg(path):
 
 # ---------------------------------------------------------
 
-output_preamble = """
+output_preamble = r"""
 from sage.combinat.sf.sfa import zee
 R, q = QQ['q'].objgen()
 sym = SymmetricFunctions(R)
