@@ -13,6 +13,8 @@ import operator
 import time
 from collections import defaultdict, Counter, namedtuple
 
+from perm import *
+
 # ---------------------------------------------------------
 
 import logging
@@ -142,41 +144,6 @@ def contractible(path, perm, composition):
                 return False
         total += part
     return True
-
-# ---------------------------------------------------------
-
-def is_blist(bl):
-    r"""
-    Check whether `bl` is a valid bijection, in the index list format.
-
-    In the index list format, `bl[i] == j` if ``L_i \mapsto R_j``.
-
-    >>> is_blist((0, 0, 0, 0, 0))
-    False
-    >>> is_blist((0, 1, 2, 3, 4))
-    True
-    >>> is_blist((4, 3, 2, 1, 0))
-    True
-    """
-    return (isinstance(bl, tuple) and
-            sorted(bl) == range(len(bl)))
-
-def iter_blist(n):
-    r"""
-    Return an iterator over all valid blists of length `n`.
-    """
-    return it.permutations(range(n))
-
-def test_is_blist(below=7):
-    r"""
-    Test that `is_blist` corresponds to `iter_blist`.
-
-    >>> test_is_blist()
-    """
-    for n in range(below):
-        expected = list(iter_blist(n))
-        actual = filter(is_blist, it.product(range(n), repeat=n))
-        assert expected == actual
 
 # ---------------------------------------------------------
 
