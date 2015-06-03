@@ -6,8 +6,6 @@ Code for computing characters of Hessenberg varieties.
 """
 
 import itertools as it
-import math
-import random
 import numpy as np
 import operator
 import time

@@ -6,10 +6,6 @@ Code for computing chromatic symmetric functions.
 """
 
 import itertools as it
-import math
-import random
-import numpy as np
-import operator
 import time
 from collections import defaultdict, Counter, namedtuple
 
