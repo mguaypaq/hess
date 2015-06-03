@@ -8,6 +8,12 @@ There are two useful representations:
 
  - blist: tuple of images
  - bfact: the code of a permutation
+
+To run some tests for this module, use the command:
+$ python perm.py
+For more verbose output, use:
+$ python perm.py -v
+
 """
 
 __all__ = [
@@ -20,7 +26,9 @@ __all__ = [
     ]
 
 # ---------------------------------------------------------
+
 import itertools as it
+
 # ---------------------------------------------------------
 
 def is_blist(bl):
