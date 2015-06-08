@@ -11,6 +11,7 @@ from collections import defaultdict, Counter, namedtuple
 
 from path import *
 from perm import *
+from util import *
 
 # ---------------------------------------------------------
 
@@ -51,39 +52,6 @@ def doit(n):
         result[path] = current
     log.info('done with size %d', n)
     return result
-
-# ---------------------------------------------------------
-
-def inversions(path, perm):
-    r"""
-    Compute the number of path-inversions for a given permutation.
-
-    >>> inversions((0, 0, 0), (0, 1, 2))
-    0
-    >>> inversions((0, 0, 0), (0, 2, 1))
-    1
-    >>> inversions((0, 0, 0), (1, 0, 2))
-    1
-    >>> inversions((0, 0, 0), (1, 2, 0))
-    2
-    >>> inversions((0, 0, 0), (2, 0, 1))
-    2
-    >>> inversions((0, 0, 0), (2, 1, 0))
-    3
-    >>> inversions((0, 0, 1), (0, 1, 2))
-    0
-    >>> inversions((0, 0, 1), (0, 2, 1))
-    1
-    >>> inversions((0, 0, 1), (1, 0, 2))
-    1
-    >>> inversions((0, 0, 1), (1, 2, 0))
-    1
-    >>> inversions((0, 0, 1), (2, 0, 1))
-    1
-    >>> inversions((0, 0, 1), (2, 1, 0))
-    2
-    """
-    return sum((perm[i] > perm[j]) for i, j in boxes_under_path(path))
 
 # ---------------------------------------------------------
 
@@ -141,39 +109,6 @@ def contractible(path, perm, composition):
                 return False
         total += part
     return True
-
-# ---------------------------------------------------------
-
-def compositions(n):
-    r"""
-    Iterator for the compositions of the integer `n`.
-
-    >>> sorted(list(compositions(3)))
-    [(1, 1, 1), (1, 2), (2, 1), (3,)]
-    >>> len(list(compositions(8)))
-    128
-    """
-    if n == 0:
-        yield ()
-        return
-    for head in range(1, n+1):
-        for tail in compositions(n-head):
-            yield (head,) + tail
-
-# ---------------------------------------------------------
-
-def partitions(n):
-    r"""
-    Iterator for the partitions of the integer `n`.
-
-    >>> sorted(list(partitions(3)))
-    [(1, 1, 1), (2, 1), (3,)]
-    >>> len(list(partitions(8)))
-    22
-    """
-    for c in compositions(n):
-        if c == tuple(sorted(c, reverse=True)):
-            yield c
 
 # ---------------------------------------------------------
 
