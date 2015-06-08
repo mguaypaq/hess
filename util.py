@@ -39,18 +39,27 @@ def compositions(n):
         for tail in compositions(n-head):
             yield (head,) + tail
 
-def partitions(n):
+def partitions(n, bound=None):
     r"""
     Iterator for the partitions of the integer `n`.
+
+    Optional argument `bound` is an upper bound on the part sizes.
 
     >>> sorted(list(partitions(3)))
     [(1, 1, 1), (2, 1), (3,)]
     >>> len(list(partitions(8)))
     22
+    >>> sorted(list(partitions(4, 2)))
+    [(1, 1, 1, 1), (2, 1, 1), (2, 2)]
     """
-    for c in compositions(n):
-        if c == tuple(sorted(c, reverse=True)):
-            yield c
+    if n == 0:
+        yield ()
+        return
+    if bound is None or bound > n:
+        bound = n
+    for head in range(1, bound+1):
+        for tail in partitions(n-head, head):
+            yield (head,) + tail
 
 # ---------------------------------------------------------
 
