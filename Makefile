@@ -17,6 +17,7 @@ test:
 	python -m doctest $(PYFILES)
 
 $(OUTPUTDIR):
-	mkdir $(OUTPUTDIR)
+	-mkdir $(OUTPUTDIR)
 
 .PHONY: all clean
+.DELETE_ON_ERROR:
