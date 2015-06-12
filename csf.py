@@ -16,31 +16,23 @@ from util import *
 # ---------------------------------------------------------
 
 import logging
-log = logging.getLogger(__name__)
-
-log.setLevel(logging.INFO)
-h = logging.StreamHandler()
-h.setFormatter(logging.Formatter('%(relativeCreated)d: %(message)s'))
-log.addHandler(h)
-del h
-
-log.info('starting script')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # ---------------------------------------------------------
 
-def doit(n):
+def compute_csfs(n):
     r"""
     Compute the coefficients of the q-csf for everything of size n,
     in the monomial basis.
     """
-    log.info('starting size %d', n)
-    result = {}
+    logger.info('starting size %d', n)
     paths = list(iter_path(n))
     perms = list(iter_blist(n))
     parts = list(partitions(n))
     for k, path in enumerate(paths):
-        log.info('doing size %d path %d', n, k)
-        current = {
+        logger.info('doing size %d path %d', n, k)
+        csf = {
             part: [0]*(n*(n-1)//2+1)
             for part in parts
             }
@@ -48,10 +40,9 @@ def doit(n):
             degree = inversions(path, perm)
             for part in parts:
                 if contractible(path, perm, part):
-                    current[part][degree] += 1
-        result[path] = current
-    log.info('done with size %d', n)
-    return result
+                    csf[part][degree] += 1
+        yield path, csf
+    logger.info('done with size %d', n)
 
 # ---------------------------------------------------------
 
@@ -112,40 +103,64 @@ def contractible(path, perm, composition):
 
 # ---------------------------------------------------------
 
-def output_all(sizes):
-    start = time.time()
-    result = ""
-    for n in sizes:
-        data = doit(n)
-        for path in iter_path(n):
-            result += '''csf[{}] = m.sum(
+def doctest():
+    import doctest
+    doctest.testmod(verbose=False)
+
+# ---------------------------------------------------------
+
+def setup_logging():
+    handler = logging.StreamHandler()
+    handler.setFormatter(
+        logging.Formatter(
+            '%(module)s (elapsed time %(relativeCreated)d): %(message)s'))
+    logger.addHandler(handler)
+
+# ---------------------------------------------------------
+
+def argparse():
+    import argparse
+    parser = argparse.ArgumentParser(
+        description='Compute graded chromatic symmetric functions for all unit interval orders of size n.',
+        )
+    parser.add_argument(
+        'n',
+        type=int,
+        help='The size of unit interval orders to consider.',
+        )
+    args = parser.parse_args()
+    return args.n
+
+# ---------------------------------------------------------
+
+output_header = r"""csf[{path}] = m.sum(
     m.term(Partition(index), R(coeffs))
     for index, coeffs in [
-'''.format(path)
-            for index, coeffs in sorted(data[path].iteritems()):
-                while coeffs and coeffs[-1] == 0:
-                    coeffs.pop()
-                if coeffs:
-                    result += '    ({}, {}),\n'.format(list(index), coeffs)
-            result += '    ])\n\n'
-    return result
+"""
 
-# ---------------------------------------------------------
+output_footer = r"""    ])
 
-def short_computation():
-    with open('csf-123456.py', 'w') as f:
-        f.write(output_all([1, 2, 3, 4, 5, 6]))
+"""
 
-def long_computation():
-    for n in [1, 2, 3, 4, 5, 6, 7, 8]:
-        with open('csf-{}.py'.format(n), 'w') as f:
-            f.write(output_all([n]))
+def save(path, csf):
+    filename = 'output/csf-' + ''.join(map(str, path)) + '.py'
+    with open(filename, 'w') as f:
+        f.write(output_header.format(path=path))
+        for index, coeffs in sorted(csf.iteritems()):
+            while coeffs and coeffs[-1] == 0:
+                coeffs.pop()
+            if coeffs:
+                f.write("    ({}, {}),\n".format(list(index), coeffs))
+        f.write(output_footer)
 
-# ---------------------------------------------------------
-import doctest
-doctest.testmod()
 # ---------------------------------------------------------
 
 if __name__ == '__main__':
-    long_computation()
+    doctest()
+    setup_logging()
+    n = argparse()
+    for path, csf in compute_csfs(n):
+        save(path, csf)
+
+# ---------------------------------------------------------
 
