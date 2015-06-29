@@ -7,14 +7,18 @@ Code for computing characters of Hessenberg varieties.
 
 import itertools as it
 import numpy as np
-import operator
-import time
-from collections import defaultdict, Counter, namedtuple
+from collections import defaultdict
 
 from fragment import *
 from path import *
 from perm import *
 from util import *
+
+# ---------------------------------------------------------
+
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # ---------------------------------------------------------
 
@@ -165,7 +169,7 @@ def frag_at(n, frag, indices):
 
 # ---------------------------------------------------------
 
-def doleft(path):
+def compute_left(path):
     assert is_path(path)
     n = len(path)
     maxoff = (0,) + (1,)*(n-1)
@@ -208,7 +212,7 @@ def doleft(path):
             csf[t,deg] += quo
     return csf
 
-def doright(path):
+def compute_right(path):
     assert is_path(path)
     n = len(path)
     maxoff = (0,) + (1,)*(n-1)
@@ -258,7 +262,7 @@ def check_rreg(path):
     """
     assert is_path(path)
     sums = defaultdict(int)
-    for ((t, _), coeff) in doright(path).iteritems():
+    for ((t, _), coeff) in compute_right(path).iteritems():
         sums[t] += coeff
     result = sums.pop(tuple(range(len(path))))
     if all(s == 0 for s in sums.itervalues()):
@@ -268,71 +272,93 @@ def check_rreg(path):
 
 # ---------------------------------------------------------
 
-def output_all(sizes):
-    start = time.time()
-    result = ""
-    for n in sizes:
-        cycle_type = translators(n)
-        k = 0
-        for path in iter_path(n):
-            k += 1
-            print 'size', n, 'path', k, 'time', time.time()-start
-            #right
-            tmp = defaultdict(lambda: [0]*(1+n*(n-1)//2))
-            for ((lperm, deg), coeff) in doright(path).iteritems():
-                tmp[cycle_type[lperm]][deg] = coeff
-            result += '''hess_right[{}] = p.sum(
-    p.term(Partition(index), R(coeffs) / zee(index))
-    for index, coeffs in [
-'''.format(path)
-            for index, coeffs in sorted(tmp.iteritems()):
-                while coeffs and coeffs[-1] == 0:
-                    coeffs.pop()
-                if coeffs:
-                    result += '    ({}, {}),\n'.format(list(index), coeffs)
-            result += '    ])\n\n'
-            #left
-            tmp = defaultdict(lambda: [0]*(1+n*(n-1)//2))
-            for ((lperm, deg), coeff) in doleft(path).iteritems():
-                tmp[cycle_type[lperm]][deg] = coeff
-            result += '''hess_left[{}] = p.sum(
-    p.term(Partition(index), R(coeffs) / zee(index))
-    for index, coeffs in [
-'''.format(path)
-            for index, coeffs in sorted(tmp.iteritems()):
-                while coeffs and coeffs[-1] == 0:
-                    coeffs.pop()
-                if coeffs:
-                    result += '    ({}, {}),\n'.format(list(index), coeffs)
-            result += '    ])\n\n'
-    return result
-
-# ---------------------------------------------------------
-
-def short_computation():
-    with open('hess-12345.py', 'w') as f:
-        f.write(output_all([1, 2, 3, 4, 5]))
-
-def long_computation():
-    with open('hess-123456.py', 'w') as f:
-        f.write(output_all([1, 2, 3, 4, 5, 6]))
-    with open('hess-7.py', 'w') as f:
-        f.write(output_all([7]))
-    with open('hess-8.py', 'w') as f:
-        f.write(output_all([8]))
-    print 'all done! :D'
-
-# ---------------------------------------------------------
-
 #check translation classes?
 #test vector supports?
 
 # ---------------------------------------------------------
-import doctest
-doctest.testmod()
+
+def doctest():
+    import doctest
+    doctest.testmod(verbose=False)
+
+# ---------------------------------------------------------
+
+def setup_logging():
+    handler = logging.StreamHandler()
+    handler.setFormatter(
+        logging.Formatter(
+            '%(module)s (elapsed time %(relativeCreated)d): %(message)s'))
+    logger.addHandler(handler)
+
+# ---------------------------------------------------------
+
+def argparse():
+    import argparse
+    parser = argparse.ArgumentParser(
+        description='Compute left and right Hessenberg characters for a given Dyck path.',
+        )
+    parser.add_argument(
+        'path',
+        help='The Dyck path (e.g. triangle is 000, fully disconnected is 012).',
+        )
+    args = parser.parse_args()
+    path = tuple(map(int, args.path))
+    assert is_path(path)
+    return path
+
+# ---------------------------------------------------------
+
+left_output_header = r"""hess_left[{path}] = p.sum(
+    p.term(Partition(index), R(coeffs) / zee(index))
+    for index, coeffs in [
+"""
+
+right_output_header = r"""hess_right[{path}] = p.sum(
+    p.term(Partition(index), R(coeffs) / zee(index))
+    for index, coeffs in [
+"""
+
+left_output_footer = right_output_footer = r"""    ])
+
+"""
+
+def save(path, left, right):
+    n = len(path)
+    filename = 'output/hess-' + ''.join(map(str, path)) + '.py'
+    with open(filename, 'w') as f:
+        f.write(left_output_header.format(path=path))
+        tmp = defaultdict(lambda: [0]*(1+n*(n-1)//2))
+        for ((lperm, deg), coeff) in left.iteritems():
+            tmp[cycle_type[lperm]][deg] = coeff
+        for index, coeffs in sorted(tmp.iteritems()):
+            while coeffs and coeffs[-1] == 0:
+                coeffs.pop()
+            if coeffs:
+                f.write("    ({}, {}),\n".format(list(index), coeffs))
+        f.write(left_output_footer)
+        f.write(right_output_header.format(path=path))
+        tmp = defaultdict(lambda: [0]*(1+n*(n-1)//2))
+        for ((lperm, deg), coeff) in right.iteritems():
+            tmp[cycle_type[lperm]][deg] = coeff
+        for index, coeffs in sorted(tmp.iteritems()):
+            while coeffs and coeffs[-1] == 0:
+                coeffs.pop()
+            if coeffs:
+                f.write("    ({}, {}),\n".format(list(index), coeffs))
+        f.write(right_output_footer)
+
 # ---------------------------------------------------------
 
 if __name__ == '__main__':
-    short_computation()
-#    long_computation()
+    doctest()
+    setup_logging()
+    path = argparse()
+    logger.info('starting left computation for path %s', path)
+    left = compute_left(path)
+    logger.info('starting right computation for path %s', path)
+    right = compute_right(path)
+    save(path, left, right)
+    logger.info('done with path %s', path)
+
+# ---------------------------------------------------------
 
