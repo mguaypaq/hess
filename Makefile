@@ -1,12 +1,13 @@
 
 OUTPUTDIR := output
-PYFILES := \
-    csf.py \
-    fragment.py \
-    hess.py \
-    path.py \
-    perm.py \
-    util.py \
+
+PYFILES :=
+PYFILES += csf.py
+PYFILES += fragment.py
+PYFILES += hess.py
+PYFILES += path.py
+PYFILES += perm.py
+PYFILES += util.py
 
 all: | $(OUTPUTDIR)
 
@@ -20,4 +21,4 @@ $(OUTPUTDIR):
 	-mkdir $(OUTPUTDIR)
 
 .PHONY: all clean
-.DELETE_ON_ERROR:
+
