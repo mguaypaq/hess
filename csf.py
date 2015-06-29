@@ -124,7 +124,9 @@ def argparse():
     parser.add_argument(
         'n',
         type=int,
-        help='The size of unit interval orders to consider.',
+        choices=range(1, 11),
+        metavar='n',
+        help='The size of unit interval orders to consider (from 1 to 10).',
         )
     args = parser.parse_args()
     return args.n
