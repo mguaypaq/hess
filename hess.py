@@ -324,6 +324,7 @@ left_output_footer = right_output_footer = r"""    ])
 
 def save(path, left, right):
     n = len(path)
+    cycle_type = translators(n)
     filename = 'output/hess-' + ''.join(map(str, path)) + '.py'
     with open(filename, 'w') as f:
         f.write(left_output_header.format(path=path))
