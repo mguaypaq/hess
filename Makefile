@@ -24,7 +24,7 @@ OUTFILES :=
 # Top-level targets
 #--------------------------------
 
-all: output.py | output
+all: output.py
 
 clean:
 	git clean -dfx
@@ -54,7 +54,7 @@ output.py: output-preamble.py $(OUTFILES)
 var/size-%.d: | var
 	python makedeps.py $* >$@
 
-var/csf-size-%: $(PYFILES) | var
+var/csf-size-%: $(PYFILES) | output var
 	python csf.py $*
 	touch $@
 
