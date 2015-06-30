@@ -49,7 +49,7 @@ var:
 	mkdir var
 
 output.py: output-preamble.py $(OUTFILES)
-	cat output-preamble.py $(OUTFILES) >output.py
+	@cat output-preamble.py $(sort $(OUTFILES)) >output.py
 
 var/size-%.d: | var
 	python makedeps.py $* >$@
