@@ -36,7 +36,7 @@ test:
 # Included makefiles
 #--------------------------------
 
-include $(SIZE:%=var/size-%.d)
+include $(SIZES:%=var/size-%.d)
 
 #--------------------------------
 # Internal targets
