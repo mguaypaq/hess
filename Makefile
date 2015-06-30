@@ -49,6 +49,7 @@ var:
 	mkdir var
 
 output.py: output-preamble.py $(OUTFILES)
+	@echo 'cat output-preamble.py (...) >output.py'
 	@cat output-preamble.py $(sort $(OUTFILES)) >output.py
 
 var/size-%.d: | var
